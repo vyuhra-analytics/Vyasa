@@ -11,10 +11,11 @@ import tempfile
 from pathlib import Path
 
 import pandas as pd
+from vyasa.rolls import RULES
 
 from huggingface_hub import CommitOperationAdd, CommitOperationDelete, HfApi
 
-NAMES = {"CL": "WTI Crude Oil", "NG": "Henry Hub Natural Gas"}
+NAMES = {"CL": "WTI Crude Oil", "NG": "Henry Hub Natural Gas", "USDINR": "US Dollar / Indian Rupee"}
 
 
 def catalog(files) -> str:
@@ -25,7 +26,7 @@ def catalog(files) -> str:
         root = d.symbol[0].split(":")[-1].rstrip("0123456789!")
         tf = f.stem.split("_")[1]
         rows.append(f"| {NAMES.get(root, root)} | `{f.name}` | `{d.symbol[0]}` | {tf} "
-                    f"| {d.date.min():%Y-%m-%d} to {d.date.max():%Y-%m-%d} | {len(d):,} | {int(d.is_roll.sum())} |")
+                    f"| {d.date.min():%Y-%m-%d} to {d.date.max():%Y-%m-%d} | {len(d):,} | {int(d.is_roll.sum()) if root in RULES else 'n/a'} |")
     return chr(10).join(rows)
 
 
@@ -40,7 +41,7 @@ def configs(files) -> str:
 
 
 CARD = """---
-pretty_name: "Vyasa: Daily Futures OHLCV (WTI Crude Oil, Natural Gas)"
+pretty_name: "Vyasa: Daily OHLCV (WTI Crude Oil, Natural Gas, USD/INR)"
 license: other
 license_name: unspecified
 task_categories:
@@ -58,18 +59,22 @@ tags:
 - candlestick
 - time-series
 - continuous-futures
+- forex
+- fx
+- usdinr
+- inr
 size_categories:
 - 1K<n<10K
 configs:
 {configs}
 ---
-# Vyasa: Daily Futures OHLCV
+# Vyasa: Daily OHLCV
 
-Clean daily OHLCV candles for NYMEX futures (WTI crude oil `CL1!`, Henry Hub natural gas `NG1!`),
-2010 to present, with price change, percent change and contract-roll flags. Built for training,
+Clean daily OHLCV candles for NYMEX futures (WTI crude oil `CL1!`, Henry Hub natural gas `NG1!`)
+and USD/INR spot FX (`FX_IDC:USDINR`), 2010 to present, with price change, percent change and contract-roll flags. Built for training,
 validating and evaluating machine learning and LLM time-series models.
 
-- Continuous front-month futures, **unadjusted** (no back-adjustment).
+- Futures are continuous front-month, **unadjusted** (no back-adjustment). USDINR is spot FX.
 - Files: `<instrument>_<timeframe>_<from>-<to>.parquet`, one per symbol.
 
 ## Datasets
@@ -78,12 +83,13 @@ validating and evaluating machine learning and LLM time-series models.
 
 - Columns: `date`, `open`, `high`, `low`, `close`, `volume`, `change` (close - prior close),
   `change_pct` (percent, abs prior close as denominator), `is_roll`, `symbol`.
-- `is_roll`: first bar of the next contract (NYMEX expiry rules; NG on expiry day, CL one bar earlier).
+- `is_roll` (futures only; always `False` for FX): first bar of the next contract (NYMEX expiry rules; NG on expiry day, CL one bar earlier).
   `change`/`change_pct` on that bar include the roll gap.
 - Validation: bars with null/non-positive volume, inconsistent OHLC, duplicates and the in-progress
   bar are dropped. Negative prices are kept (CL settled at -37.63 on 2020-04-20).
 
 ## Known limitations
+- USDINR has no volume in the source (`volume` is 0) and a few flat single-tick bars on holidays.
 - Around exchange holidays the source has a low-volume partial-session bar on the holiday and no bar
   for the following day, so `change` there can span two sessions.
 - CL roll offset was inferred from volume, not an official expiry list.

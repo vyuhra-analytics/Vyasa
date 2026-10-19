@@ -5,7 +5,7 @@ import pandas as pd
 
 from .rolls import root
 
-SLUGS = {"CL": "crudeoil", "NG": "naturalgas"}
+SLUGS = {"CL": "crudeoil", "NG": "naturalgas", "USDINR": "usdinr"}
 
 
 def folder_name(symbol: str, timeframe: str) -> str:

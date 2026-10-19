@@ -38,10 +38,13 @@ def root(symbol: str) -> str:
 
 
 def flag_rolls(df: pd.DataFrame, symbol: str) -> pd.DataFrame:
+    out = df.copy()
+    if root(symbol) not in RULES:  # no contracts to roll (e.g. FX spot)
+        out["is_roll"] = False
+        return out
     base, shift = RULES[root(symbol)]
     td = pd.DatetimeIndex(df["date"])
     bases = (base(td, y, m) for y in range(td[0].year, td[-1].year + 1) for m in range(1, 13))
     idx = {b - 3 + shift for b in bases if b is not None}
-    out = df.copy()
     out["is_roll"] = [i in idx for i in range(len(df))]
     return out

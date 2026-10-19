@@ -1,7 +1,9 @@
 import pytest
 import pandas as pd
 
-from vyasa.ingest import add_changes
+import json
+
+from vyasa.ingest import add_changes, load_raw
 from vyasa.rolls import flag_rolls
 from vyasa.validate import validate
 from vyasa.write import merge_years, write_parquet
@@ -27,8 +29,8 @@ def test_validate_rejects_bad_bars():
 
 
 def test_zero_volume_rejected():
-    clean, bad = validate(frame([("2013-08-30", 3.5, 3.5, 3.5, 3.5, 0)]))
-    assert clean.empty and list(bad.reason) == ["bad_volume"]
+    clean, bad = validate(frame([("2013-08-29", 3.5, 3.6, 3.4, 3.5, 100), ("2013-08-30", 3.5, 3.5, 3.5, 3.5, 0)]))
+    assert len(clean) == 1 and list(bad.reason) == ["bad_volume"]
 
 
 def test_negative_prices_kept():
@@ -72,3 +74,15 @@ def test_validate_drops_today():
     today = pd.Timestamp.now(tz="America/New_York").tz_localize(None).normalize()
     clean, bad = validate(frame([("2026-01-01", 10, 11, 9, 10, 1), (today, 10, 11, 9, 10, 1)]))
     assert len(clean) == 1 and list(bad.reason) == ["incomplete_bar"]
+
+
+def test_fx_no_volume_no_rolls_fixed_utc_stamp(tmp_path):
+    # 22:00 UTC Sunday and Thursday stamps -> Monday / Friday trade dates, in winter and summer alike
+    stamps = [pd.Timestamp(t, tz="UTC").timestamp() for t in ("2026-01-04 22:00", "2026-07-02 22:00")]
+    f = tmp_path / "fx.json"
+    f.write_text(json.dumps({"bars": [{"time": t, "open": 90, "high": 91, "low": 89, "close": 90, "volume": 0} for t in stamps]}))
+    df = load_raw(f)
+    assert list(df.date.dt.strftime("%a %Y-%m-%d")) == ["Mon 2026-01-05", "Fri 2026-07-03"]
+    clean, bad = validate(df)
+    assert len(clean) == 2 and bad.empty
+    assert not flag_rolls(clean, "FX_IDC:USDINR").is_roll.any()

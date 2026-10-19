@@ -9,8 +9,9 @@ The datasets live on Hugging Face, not in this repo: [`vyuhra-analytics/vyasa`](
 |---|---|---|---|---|---|---|
 | WTI Crude Oil | `crudeoil_1D_2010-2026.parquet` | `NYMEX:CL1!` | 1D | 2010-01-04 to 2026-10-16 | 4,227 | 201 |
 | Henry Hub Natural Gas | `naturalgas_1D_2010-2026.parquet` | `NYMEX:NG1!` | 1D | 2010-01-04 to 2026-10-16 | 4,226 | 201 |
+| US Dollar / Indian Rupee | `usdinr_1D_2010-2026.parquet` | `FX_IDC:USDINR` | 1D | 2010-01-01 to 2026-10-16 | 4,377 | n/a |
 
-Unadjusted continuous front-month futures. Columns: `date`, `open`, `high`, `low`, `close`, `volume`, `change`, `change_pct`, `is_roll`, `symbol`. See the dataset card on Hugging Face for rules and known limitations. Regenerate this table with `python scripts/publish.py x --catalog`.
+Futures are unadjusted continuous front-month; USDINR is spot FX (no volume, no rolls). Columns: `date`, `open`, `high`, `low`, `close`, `volume`, `change`, `change_pct`, `is_roll`, `symbol`. See the dataset card on Hugging Face for rules and known limitations. Regenerate this table with `python scripts/publish.py x --catalog`.
 
 ## Pipeline
 
