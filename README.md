@@ -26,4 +26,4 @@ TradingView Desktop --scripts/pull_tv.py--> data/raw/*.json
 2. Validate, add changes and roll flags, write parquet: `vyasa 'NYMEX:CL1!' data/raw/NYMEX_CL1.json --since 2010`
 3. Publish: `python scripts/publish.py vyuhra-analytics/vyasa`
 
-`data/` and `datasets/` are gitignored. Source: `src/vyasa` (`ingest`, `validate`, `rolls`, `write`, `cli`); tests: `pytest`.
+`data/` and `datasets/` are gitignored. Source: `src/` (`ingest`, `validate`, `rolls`, `write`, `cli`); tests: `pytest`.

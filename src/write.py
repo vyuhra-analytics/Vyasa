@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from .rolls import root
+from rolls import root
 
 SLUGS = {"CL": "crudeoil", "NG": "naturalgas", "USDINR": "usdinr"}
 

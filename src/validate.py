@@ -4,7 +4,7 @@ No positive-price check: futures can settle negative (CL 2020-04-20 closed -37.6
 """
 import pandas as pd
 
-from .ingest import COLS
+from ingest import COLS
 
 
 def validate(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
