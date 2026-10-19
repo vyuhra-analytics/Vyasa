@@ -11,7 +11,7 @@ import tempfile
 from pathlib import Path
 
 import pandas as pd
-from vyasa.rolls import RULES
+from rolls import RULES
 
 from huggingface_hub import CommitOperationAdd, CommitOperationDelete, HfApi
 

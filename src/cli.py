@@ -1,10 +1,10 @@
 """vyasa build <symbol> <raw.json> [--out data]"""
 import argparse
 
-from .ingest import add_changes, load_raw
-from .rolls import flag_rolls
-from .validate import validate
-from .write import merge_years, write_parquet
+from ingest import add_changes, load_raw
+from rolls import flag_rolls
+from validate import validate
+from write import merge_years, write_parquet
 
 
 def main() -> None:

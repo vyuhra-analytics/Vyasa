@@ -10,11 +10,12 @@ dev = ["pytest"]
 publish = ["huggingface_hub"]
 
 [project.scripts]
-vyasa = "vyasa.cli:main"
+vyasa = "cli:main"
 
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.setuptools]
+package-dir = {"" = "src"}
+py-modules = ["cli", "ingest", "rolls", "validate", "write"]

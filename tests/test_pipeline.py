@@ -3,10 +3,10 @@ import pandas as pd
 
 import json
 
-from vyasa.ingest import add_changes, load_raw
-from vyasa.rolls import flag_rolls
-from vyasa.validate import validate
-from vyasa.write import merge_years, write_parquet
+from ingest import add_changes, load_raw
+from rolls import flag_rolls
+from validate import validate
+from write import merge_years, write_parquet
 
 
 def frame(rows):
